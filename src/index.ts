@@ -1,33 +1,39 @@
-import express from 'express';
-import cors from 'cors';
+// server/index.js
+require('dotenv').config(); // MUST BE FIRST
+const express = require('express');
+const cors = require('cors');
+const prisma = require('./lib/prisma'); // Import the singleton
+const cookieParser = require('cookie-parser');
 
 const app = express();
-const PORT = 5000;
 
 // Middleware
-app.use(cors({
-    origin: "http://localhost:3000",
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// The exact route your client is requesting
-app.post('/api/auth/login', (req, res) => {
-    const { email, password } = req.body;
-    
-    // Minimal validation
-    if (!email || !password) {
-        return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    console.log("Login request for:", email);
-
-    res.status(200).json({ 
-        message: "Login successful!", 
-        token: "success-token-123" 
-    });
+// Routes
+app.get('/', (req, res) => {
+    res.send('OmniSocial API Operational');
 });
 
+// Example route using the imported prisma client
+app.get('/api/status', async (req, res) => {
+    try {
+        // Simple check to ensure Prisma is ready
+        await prisma.$connect();
+        res.json({ status: 'connected' });
+    } catch (error) {
+        res.status(500).json({ error: 'Database connection failed' });
+    }
+});
+
+// Your other routes go here...
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app; // Essential for Vercel Serverless
