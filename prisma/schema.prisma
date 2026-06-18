@@ -5,9 +5,9 @@ datasource db {
 
 generator client {
   provider      = "prisma-client-js"
+  // Add this line below to fix the initialization error
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
-}
-model User {
+}model User {
   id         Int       @id @default(autoincrement())
   email      String    @unique
   username   String    @unique
