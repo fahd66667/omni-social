@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniSocial - Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0b0813;
+            --card-color: #151124;
+            --border-color: #231c3a;
+            --accent-purple: #a855f7;
+            --accent-blue: #6366f1;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container { width: 100%; max-width: 680px; }
+
+        .navbar {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 15px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 { color: var(--accent-purple); font-size: 20px; margin: 0; }
+
+        .nav-actions { display: flex; gap: 12px; }
+
+        .btn-secondary {
+            background-color: #1e1933;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--accent-purple);
+            border-color: var(--accent-purple);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-logout:hover {
+            background-color: #ef4444 !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .stats-box {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(99, 102, 241, 0.1));
+            border: 1px solid var(--accent-purple);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="navbar">
+            <h1>Creator Dashboard</h1>
+            <div class="nav-actions">
+                <a href="/feed" class="btn-secondary">Back to Feed</a>
+                <a href="/logout" class="btn-secondary btn-logout" style="color: #ef4444;">Logout</a>
+            </div>
+        </div>
+
+        <div class="stats-box">
+            <h2 style="margin: 0; font-size: 24px;">Welcome back, <%= user.username %>!</h2>
+            <p style="color: var(--text-muted); margin-top: 5px;">You have published <%= myPosts.length %> post(s).</p>
+        </div>
+
+        <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Your Content History</h3>
+        
+        <% if(myPosts.length === 0) { %>
+            <div class="card" style="text-align: center; color: var(--text-muted);">
+                <p>You haven't posted anything yet. Head back to the feed to make your first post!</p>
+            </div>
+        <% } else { %>
+            <% myPosts.forEach(post => { %>
+                <div class="card">
+                    <p style="font-size: 16px; line-height: 1.6; margin-top: 0;"><%= post.content %></p>
+                    <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
+                        <small style="color: #4ade80;">👍 <%= post.likes %> Likes</small>
+                        <small style="color: #f87171;">👎 <%= post.dislikes %> Dislikes</small>
+                        
+                        <form action="/posts/<%= post.id %>/delete" method="POST" style="margin: 0;">
+                            <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; text-decoration: underline;" onclick="return confirm('Delete this post permanently?')">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+
+</body>
+</html>

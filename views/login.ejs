@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniSocial - Login</title>
+    <style>
+        body { background-color: #0b0813; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: #151124; padding: 40px; border-radius: 14px; border: 1px solid #231c3a; width: 340px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        h2 { margin-top: 0; color: #a855f7; text-align: center; font-size: 26px; letter-spacing: -0.5px; }
+        label { font-size: 12px; color: #94a3b8; display: block; margin-top: 12px; }
+        input { width: 100%; padding: 12px; margin: 6px 0 12px 0; background: #0b0813; border: 1px solid #231c3a; color: white; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: all 0.2s; }
+        input:focus { border-color: #a855f7; outline: none; box-shadow: 0 0 8px rgba(168, 85, 247, 0.2); }
+        
+        /* Interactive Button with Hover */
+        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; color: white; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px; transition: all 0.2s ease-in-out; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4); filter: brightness(1.1); }
+        button:active { transform: translateY(0); }
+        
+        a { color: #818cf8; text-decoration: none; display: block; text-align: center; margin-top: 18px; font-size: 14px; transition: color 0.2s; }
+        a:hover { color: #a855f7; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>omni-social</h2>
+        <% if (error) { %><p style="color: #ef4444; font-size: 14px; text-align: center;"><%= error %></p><% } %>
+        <form action="/login" method="POST">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="you@example.com" required>
+            
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+            
+            <button type="submit">Log In</button>
+        </form>
+        <a href="/register">Create an account instead</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniSocial | Professional Identity Network</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* 
+           OMNISOCIAL DESIGN SYSTEM v2.0
+           Theme: Obsidian & Neon Ultraviolet
+           Aesthetic: Management Consulting x Cyber-Punk
+        */
+
+        :root {
+            /* Color Palette */
+            --bg-deep: #050505;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-hover: #161616;
+            
+            --accent-primary: #a855f7; /* Neon Purple */
+            --accent-secondary: #6366f1; /* Neon Blue */
+            --accent-success: #22c55e;
+            --accent-error: #ef4444;
+            
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(168, 85, 247, 0.4);
+            
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --text-muted: #64748b;
+
+            /* Effects */
+            --glow-purple: 0 0 20px rgba(168, 85, 247, 0.25);
+            --glass-bg: rgba(10, 10, 10, 0.7);
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- GLOBAL RESET & BASE --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Urbanist', sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background Animated Bokeh */
+        .bokeh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.05) 0%, transparent 40%);
+        }
+
+        a { text-decoration: none; color: inherit; transition: var(--transition-smooth); }
+        button { cursor: pointer; border: none; font-family: inherit; transition: var(--transition-smooth); }
+        input, textarea { font-family: inherit; }
+
+        /* --- LAYOUT GRID --- */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 340px;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* --- SIDEBAR NAVIGATION (LEFT) --- */
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .brand-section {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+            box-shadow: var(--glow-purple);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: var(--text-dim);
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-item i { font-size: 20px; width: 24px; text-align: center; }
+        .nav-item.active i { color: var(--accent-primary); text-shadow: var(--glow-purple); }
+
+        /* --- CENTER FEED --- */
+        .main-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Create Post Container */
+        .creation-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .create-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar-md {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #444, #222);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+            object-fit: cover;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .creation-card textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 18px;
+            font-weight: 400;
+            resize: none;
+            outline: none;
+            min-height: 80px;
+        }
+
+        .creation-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .category-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+        }
+
+        .category-input-wrapper input {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: var(--accent-primary);
+            font-weight: 600;
+            font-size: 13px;
+            outline: none;
+            width: 120px;
+        }
+
+        .btn-publish {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            padding: 10px 24px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 700;
+            box-shadow: var(--glow-purple);
+        }
+
+        .btn-publish:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        /* Feed Categorization (Pills) */
+        .filter-ribbon {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 5px 0;
+            scrollbar-width: none;
+        }
+
+        .filter-ribbon::-webkit-scrollbar { display: none; }
+
+        .filter-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+
+        .filter-pill.active {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* --- POST CARDS --- */
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 24px;
+            transition: var(--transition-smooth);
+        }
+
+        .post-card:hover {
+            border-color: var(--border-active);
+            transform: translateY(-4px);
+        }
+
+        .post-top-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .author-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-details h4 { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .author-details p { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+        .tag-badge {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--accent-primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .post-body {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .post-interactions {
+            display: flex;
+            gap: 25px;
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 15px;
+        }
+
+        .interaction-btn {
+            background: none;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .interaction-btn:hover.like { color: var(--accent-success); }
+        .interaction-btn:hover.dislike { color: var(--accent-error); }
+
+        /* --- WIDGETS (RIGHT SIDEBAR) --- */
+        .widgets {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .widget-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .widget-card h3 { font-size: 18px; margin-bottom: 15px; color: var(--accent-primary); }
+
+        .trend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .trend-item:last-child { border: none; }
+        .trend-name { font-weight: 600; font-size: 14px; }
+        .trend-count { color: var(--text-muted); font-size: 12px; }
+
+        /* --- EDIT PROFILE MODAL --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-active);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 0 50px rgba(168, 85, 247, 0.2);
+        }
+
+        .modal-container h2 { font-size: 28px; margin-bottom: 10px; }
+        .modal-container p { color: var(--text-dim); font-size: 14px; margin-bottom: 25px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--accent-primary);
+            background: rgba(168, 85, 247, 0.05);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-cancel { background: #222; color: white; padding: 12px 25px; border-radius: 12px; flex: 1; font-weight: 600; }
+        .btn-save { background: var(--accent-primary); color: white; padding: 12px 25px; border-radius: 12px; flex: 1; font-weight: 700; box-shadow: var(--glow-purple); }
+
+        /* Mobile Adjustments */
+        @media (max-width: 1100px) {
+            .app-layout { grid-template-columns: 80px 1fr 0px; }
+            .sidebar .nav-item span, .sidebar .brand-section h1, .widgets { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bokeh-bg"></div>
+
+    <div class="app-layout">
+        
+        <aside class="sidebar">
+            <div class="brand-section">
+                <div class="logo-box">Ω</div>
+                <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -1px;">OmniSocial</h1>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="/feed" class="nav-item active">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Network Feed</span>
+                </a>
+                <a href="/dashboard" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-hashtag"></i>
+                    <span>Explore Trends</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+                <div style="margin: 10px 0; border-top: 1px solid var(--border-subtle);"></div>
+                <button class="nav-item" style="background:none; width:100%;" onclick="toggleModal(true)">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Identity Settings</span>
+                </button>
+                <a href="/logout" class="nav-item" style="color: var(--accent-error);">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Terminate Session</span>
+                </a>
+            </nav>
+
+            <div style="margin-top: auto; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 15px; border: 1px solid var(--border-subtle);">
+                <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Node Status</p>
+                <p style="font-size: 13px; color: var(--accent-success);"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> System Operational</p>
+            </div>
+        </aside>
+
+        <main class="main-feed">
+            
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h2 style="font-size: 24px; font-weight: 800;">Welcome back, <span><%= user.username %></span></h2>
+            </header>
+
+            <section class="creation-card">
+                <form action="/posts/create" method="POST">
+                    <div class="create-header">
+                        <img src="<%= user.profilePic %>" class="user-avatar-md" alt="Me">
+                        <textarea name="content" placeholder="Broadcast a new thought to the network..." required></textarea>
+                    </div>
+                    <div class="creation-footer">
+                        <div class="category-input-wrapper">
+                            <i class="fa-solid fa-hashtag"></i>
+                            <input type="text" name="category" placeholder="gaming">
+                        </div>
+                        <button type="submit" class="btn-publish">Broadcast</button>
+                    </div>
+                </form>
+            </section>
+
+            <nav class="filter-ribbon">
+                <a href="/feed" class="filter-pill active">#AllNodes</a>
+                <a href="/feed?category=tech" class="filter-pill">#Technology</a>
+                <a href="/feed?category=finance" class="filter-pill">#Finance</a>
+                <a href="/feed?category=gaming" class="filter-pill">#Gaming</a>
+                <a href="/feed?category=politics" class="filter-pill">#Politics</a>
+                <a href="/feed?category=lifestyle" class="filter-pill">#Lifestyle</a>
+            </nav>
+
+            <div class="feed-stream">
+                
+                <article class="post-card">
+                    <div class="post-top-meta">
+                        <div class="author-block">
+                            <div class="user-avatar-md" style="background: linear-gradient(135deg, #6366f1, #a855f7);">JD</div>
+                            <div class="author-details">
+                                <h4>Jason Dev</h4>
+                                <p>Verified Node • Senior Systems Arch</p>
+                            </div>
+                        </div>
+                        <span class="tag-badge">System</span>
+                    </div>
+                    <div class="post-body">
+                        The integration of ES Modules into the OmniSocial core has yielded a 40% reduction in cold-start latency. We are now preparing the shard-clustering protocols for the next expansion. Stay connected.
+                    </div>
+                    <div class="post-interactions">
+                        <button class="interaction-btn like"><i class="fa-solid fa-caret-up" style="font-size: 18px;"></i> 1,204</button>
+                        <button class="interaction-btn dislike"><i class="fa-solid fa-caret-down" style="font-size: 18px;"></i> 12</button>
+                        <button class="interaction-btn"><i class="fa-solid fa-comment"></i> 84</button>
+                    </div>
+                </article>
+
+                <article class="post-card">
+                    <div class="post-top-meta">
+                        <div class="author-block">
+                            <div class="user-avatar-md" style="background: linear-gradient(135deg, #f59e0b, #d97706);">AI</div>
+                            <div class="author-details">
+                                <h4>FutureMind_AI</h4>
+                                <p>Automated Entity • Pattern Intelligence</p>
+                            </div>
+                        </div>
+                        <span class="tag-badge">AI/ML</span>
+                    </div>
+                    <div class="post-body">
+                        Predictive analysis suggests a significant shift in social networking toward glassmorphic minimalism and identity sovereignty. OmniSocial is correctly positioned to dominate this vector.
+                    </div>
+                    <div class="post-interactions">
+                        <button class="interaction-btn like"><i class="fa-solid fa-caret-up" style="font-size: 18px;"></i> 856</button>
+                        <button class="interaction-btn dislike"><i class="fa-solid fa-caret-down" style="font-size: 18px;"></i> 4</button>
+                        <button class="interaction-btn"><i class="fa-solid fa-comment"></i> 12</button>
+                    </div>
+                </article>
+
+                <% posts.forEach(post => { %>
+                    <article class="post-card">
+                        <div class="post-top-meta">
+                            <div class="author-block">
+                                <img src="<%= post.author.profilePic %>" class="user-avatar-md" alt="Author">
+                                <div class="author-details">
+                                    <h4>@<%= post.author.username %></h4>
+                                    <p>Member • Local User Node</p>
+                                </div>
+                            </div>
+                            <% if (post.category) { %>
+                                <a href="/feed?category=<%= post.category %>" class="tag-badge"><%= post.category %></a>
+                            <% } %>
+                        </div>
+                        
+                        <div class="post-body">
+                            <%= post.content %>
+                        </div>
+
+                        <div class="post-interactions">
+                            <form action="/posts/<%= post.id %>/like" method="POST">
+                                <button type="submit" class="interaction-btn like"><i class="fa-solid fa-caret-up" style="font-size: 18px;"></i> <%= post.likes %></button>
+                            </form>
+                            <form action="/posts/<%= post.id %>/dislike" method="POST">
+                                <button type="submit" class="interaction-btn dislike"><i class="fa-solid fa-caret-down" style="font-size: 18px;"></i> <%= post.dislikes %></button>
+                            </form>
+                            <% if (post.authorId === user.id) { %>
+                                <form action="/posts/<%= post.id %>/delete" method="POST" style="margin-left: auto;">
+                                    <button type="submit" class="interaction-btn" style="color: var(--accent-error);" onclick="return confirm('Drop this node data?')"><i class="fa-solid fa-trash-can"></i></button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </article>
+                <% }) %>
+
+            </div>
+        </main>
+
+        <aside class="widgets">
+            <div class="widget-card">
+                <h3>Global Pulse</h3>
+                <div class="trend-item">
+                    <div class="trend-name">#Web3Expansion</div>
+                    <div class="trend-count">24.5k posts</div>
+                </div>
+                <div class="trend-item">
+                    <div class="trend-name">#OmniProtocol</div>
+                    <div class="trend-count">18.2k posts</div>
+                </div>
+                <div class="trend-item">
+                    <div class="trend-name">#CyberMinmalism</div>
+                    <div class="trend-count">12.1k posts</div>
+                </div>
+                <div class="trend-item">
+                    <div class="trend-name">#NeonDesign</div>
+                    <div class="trend-count">9.8k posts</div>
+                </div>
+            </div>
+
+            <div class="widget-card">
+                <h3>Identity Preview</h3>
+                <div style="text-align: center; padding: 10px 0;">
+                    <img src="<%= user.profilePic %>" style="width: 100px; height: 100px; border-radius: 25px; border: 2px solid var(--accent-primary); box-shadow: var(--glow-purple); margin-bottom: 15px; object-fit: cover;">
+                    <h4 style="font-size: 18px;"><%= user.username %></h4>
+                    <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;"><%= user.email %></p>
+                    <p style="font-size: 13px; color: var(--text-dim); line-height: 1.4;"><%= user.bio || "No system bio detected. Update your identity via settings." %></p>
+                    
+                    <% if(user.link) { %>
+                        <a href="<%= user.link %>" target="_blank" style="display: block; margin-top: 15px; color: var(--accent-secondary); font-weight: 600; font-size: 12px;"><i class="fa-solid fa-link"></i> External Portal</a>
+                    <% } %>
+                </div>
+            </div>
+
+            <p style="text-align: center; font-size: 11px; color: var(--text-muted);">
+                &copy; 2024 OmniSocial Alpha v2.0.4<br>
+                Secure Environment: AES-256 Enabled
+            </p>
+        </aside>
+
+    </div>
+
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-container">
+            <h2>Identity <span>Management</span></h2>
+            <p>Update your network presence and visual identity.</p>
+            
+            <form action="/profile/update" method="POST">
+                <div class="form-group">
+                    <label>Public Handle</label>
+                    <input type="text" name="username" value="<%= user.username %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Avatar Portal (URL)</label>
+                    <input type="url" name="profilePic" value="<%= user.profilePic %>" placeholder="https://images.unsplash.com/...">
+                </div>
+                
+                <div class="form-group">
+                    <label>System Biography</label>
+                    <textarea name="bio" rows="3" placeholder="Define your purpose in the network..."><%= user.bio %></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>External Uplink (URL)</label>
+                    <input type="url" name="link" value="<%= user.link %>" placeholder="https://yourportal.io">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="toggleModal(false)">Abort</button>
+                    <button type="submit" class="btn-save">Execute Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleModal(show) {
+            const modal = document.getElementById('profileModal');
+            modal.style.display = show ? 'flex' : 'none';
+        }
+
+        // Close modal on background click
+        window.onclick = function(event) {
+            const modal = document.getElementById('profileModal');
+            if (event.target == modal) {
+                toggleModal(false);
+            }
+        }
+    </script>
+</body>
+</html>
