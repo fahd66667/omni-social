@@ -21,16 +21,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const parseUserSession = async (req, res, next) => {
-    const rawCookies = req.headers.cookie || '';
-    const userIdCookie = rawCookies.split('; ').find(row => row.startsWith('userId='));
-    
-    if (userIdCookie) {
-        const userId = parseInt(userIdCookie.split('=')[1]);
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-        if (user) {
-            req.user = user;
-            res.locals.user = user;
+    try {
+        const rawCookies = req.headers.cookie || '';
+        const userIdCookie = rawCookies.split('; ').find(row => row.startsWith('userId='));
+        
+        if (userIdCookie) {
+            const userId = parseInt(userIdCookie.split('=')[1]);
+            if (!isNaN(userId)) {
+                const user = await prisma.user.findUnique({ where: { id: userId } });
+                if (user) {
+                    req.user = user;
+                    res.locals.user = user;
+                }
+            }
         }
+    } catch (err) {
+        console.error("Session Parsing Error:", err);
     }
     next();
 };
@@ -48,34 +54,50 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => res.render('login', { error: null }));
 app.get('/register', (req, res) => res.render('register', { error: null }));
 
-app.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
-    try {
-        const user = await prisma.user.create({ data: { username, email, password } });
-        res.setHeader('Set-Cookie', `userId=${user.id}; Path=/; HttpOnly; Max-Age=2592000`);
-        res.redirect('/feed');
-    } catch (err) {
-        res.render('register', { error: "Username or Email already taken." });
-    }
-});
-
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (user && user.password === password) {
-        res.setHeader('Set-Cookie', `userId=${user.id}; Path=/; HttpOnly; Max-Age=2592000`);
-        res.redirect('/feed');
-    } else {
-        res.render('login', { error: "Invalid credentials." });
+    try {
+        const { email, password } = req.body;
+        // Your existing logic
+        const user = await prisma.user.findUnique({ where: { email } });
+        
+        if (user && user.password === password) {
+            res.setHeader('Set-Cookie', `userId=${user.id}; Path=/; HttpOnly; Max-Age=2592000`);
+            res.redirect('/feed');
+        } else {
+            res.render('login', { error: "Invalid credentials." });
+        }
+    } catch (err) {
+        // THIS IS THE FIX: This prints the real error to your Railway Logs
+        console.error("!!! DATABASE ERROR !!!", err);
+        res.status(500).send("Server Error: " + err.message);
     }
 });
-
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        // This is the line that is likely failing
+        const user = await prisma.user.findUnique({ where: { email } });
+        
+        if (user && user.password === password) {
+            res.setHeader('Set-Cookie', `userId=${user.id}; Path=/; HttpOnly; Max-Age=2592000`);
+            res.redirect('/feed');
+        } else {
+            res.render('login', { error: "Invalid credentials." });
+        }
+    } catch (err) {
+        // THIS IS THE KEY: This will force Railway to output the REAL error to your logs
+        console.error("!!! DATABASE ERROR !!!", err);
+        
+        // This prevents the "500 Internal Server Error" crash
+        res.render('login', { error: "Database error. Check logs for details." });
+    }
+});
 app.get('/logout', (req, res) => {
     res.setHeader('Set-Cookie', 'userId=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
     res.redirect('/login');
 });
 
-// Upgraded Feed: Supports Category Filtering
 app.get('/feed', requireAuth, async (req, res) => {
     const { category } = req.query;
     try {
@@ -86,82 +108,105 @@ app.get('/feed', requireAuth, async (req, res) => {
         });
         res.render('feed', { posts, selectedCategory: category || null });
     } catch (error) {
+        console.error("Feed Error:", error);
         res.status(500).send("Error loading feed.");
     }
 });
 
-// Dashboard View for Editing Everything
 app.get('/dashboard', requireAuth, async (req, res) => {
-    const myPosts = await prisma.post.findMany({ 
-        where: { authorId: req.user.id },
-        orderBy: { createdAt: 'desc' }
-    });
-    res.render('dashboard', { myPosts, error: null });
-});
-
-// Create Post with Category
-app.post('/posts/create', requireAuth, async (req, res) => {
-    let { content, category } = req.body;
-    // Strip '#' symbol if they typed it in
-    category = category ? category.replace('#', '').trim().toLowerCase() : 'general';
-    
-    await prisma.post.create({ data: { content, category, authorId: req.user.id } });
-    res.redirect('/feed');
-});
-
-// Edit Existing Post
-app.post('/posts/:id/edit', requireAuth, async (req, res) => {
-    const postId = parseInt(req.params.id);
-    let { content, category } = req.body;
-    category = category ? category.replace('#', '').trim().toLowerCase() : 'general';
-
-    const post = await prisma.post.findUnique({ where: { id: postId } });
-    if (post && post.authorId === req.user.id) {
-        await prisma.post.update({
-            where: { id: postId },
-            data: { content, category }
+    try {
+        const myPosts = await prisma.post.findMany({ 
+            where: { authorId: req.user.id },
+            orderBy: { createdAt: 'desc' }
         });
+        res.render('dashboard', { myPosts, error: null });
+    } catch (err) {
+        console.error("Dashboard Error:", err);
+        res.status(500).send("Error loading dashboard.");
     }
-    res.redirect('/dashboard');
+});
+
+app.post('/posts/create', requireAuth, async (req, res) => {
+    try {
+        let { content, category } = req.body;
+        category = category ? category.replace('#', '').trim().toLowerCase() : 'general';
+        await prisma.post.create({ data: { content, category, authorId: req.user.id } });
+        res.redirect('/feed');
+    } catch (err) {
+        console.error("Create Post Error:", err);
+        res.redirect('/dashboard');
+    }
+});
+
+app.post('/posts/:id/edit', requireAuth, async (req, res) => {
+    try {
+        const postId = parseInt(req.params.id);
+        let { content, category } = req.body;
+        category = category ? category.replace('#', '').trim().toLowerCase() : 'general';
+
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+        if (post && post.authorId === req.user.id) {
+            await prisma.post.update({
+                where: { id: postId },
+                data: { content, category }
+            });
+        }
+        res.redirect('/dashboard');
+    } catch (err) {
+        console.error("Edit Post Error:", err);
+        res.redirect('/dashboard');
+    }
 });
 
 app.post('/posts/:id/delete', requireAuth, async (req, res) => {
-    const postId = parseInt(req.params.id);
-    const post = await prisma.post.findUnique({ where: { id: postId } });
-    if (post && post.authorId === req.user.id) {
-        await prisma.comment.deleteMany({ where: { postId: postId } });
-        await prisma.post.delete({ where: { id: postId } });
+    try {
+        const postId = parseInt(req.params.id);
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+        if (post && post.authorId === req.user.id) {
+            await prisma.comment.deleteMany({ where: { postId: postId } });
+            await prisma.post.delete({ where: { id: postId } });
+        }
+        res.redirect('/dashboard');
+    } catch (err) {
+        console.error("Delete Post Error:", err);
+        res.redirect('/dashboard');
     }
-    res.redirect('/dashboard');
 });
 
-// Full Facebook-Style Profile Update
 app.post('/profile/update', requireAuth, async (req, res) => {
-    const { username, email, profilePic, website } = req.body;
     try {
+        const { username, email, profilePic, website } = req.body;
         await prisma.user.update({ 
             where: { id: req.user.id }, 
             data: { username, email, profilePic, website } 
         });
         res.redirect('/dashboard');
     } catch (err) {
+        console.error("Profile Update Error:", err);
         const myPosts = await prisma.post.findMany({ where: { authorId: req.user.id }, orderBy: { createdAt: 'desc' } });
-        res.render('dashboard', { myPosts, error: "Username or email already taken." });
+        res.render('dashboard', { myPosts, error: "Update failed." });
     }
 });
 
-// Interactive reactions
 app.post('/posts/:id/like', requireAuth, async (req, res) => {
-    await prisma.post.update({ where: { id: parseInt(req.params.id) }, data: { likes: { increment: 1 } } });
+    try {
+        await prisma.post.update({ where: { id: parseInt(req.params.id) }, data: { likes: { increment: 1 } } });
+    } catch (err) { console.error("Like Error:", err); }
     res.redirect('/feed');
 });
+
 app.post('/posts/:id/dislike', requireAuth, async (req, res) => {
-    await prisma.post.update({ where: { id: parseInt(req.params.id) }, data: { dislikes: { increment: 1 } } });
+    try {
+        await prisma.post.update({ where: { id: parseInt(req.params.id) }, data: { dislikes: { increment: 1 } } });
+    } catch (err) { console.error("Dislike Error:", err); }
     res.redirect('/feed');
 });
+
 app.post('/posts/:id/comment', requireAuth, async (req, res) => {
-    const { content } = req.body;
-    await prisma.comment.create({ data: { content, postId: parseInt(req.params.id), authorId: req.user.id } });
+    try {
+        const { content } = req.body;
+        await prisma.comment.create({ data: { content, postId: parseInt(req.params.id), authorId: req.user.id } });
+    } catch (err) { console.error("Comment Error:", err); }
     res.redirect('/feed');
 });
 
