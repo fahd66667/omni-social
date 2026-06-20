@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 node_modules 
 .next 
 .env 
 db.sqlite 
+=======
+node_modules/ 
+.env 
+.vercel
+.env*
+>>>>>>> afa418fcc0cc6df6c8c1ccaaf95078c474f4289f
