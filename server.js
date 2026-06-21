@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// --- SETUP FOR ES MODULES (FIXES THE CRASH) ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -10,32 +11,35 @@ const app = express();
 const prisma = new PrismaClient();
 
 // --- CONFIGURATION ---
-// Since server.js is in the root, we look directly into 'views'
+// Set up your views engine (Make sure you installed 'ejs')
 app.set('view engine', 'ejs'); 
 app.set('views', path.join(__dirname, 'views'));
 
 // --- MIDDLEWARE ---
-// Serve static files directly from 'public'
+// Serve CSS, JS, and Images from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // --- ROUTES ---
 
-// Homepage
+// Render your frontend (index.ejs)
 app.get('/', (req, res) => {
-    res.render('index'); 
+    res.render('index');
 });
 
+// Registration route
 app.post('/register', async (req, res) => {
     try {
+        // Your logic here
         res.redirect('/feed');
     } catch (error) {
         console.error("Registration Database Error:", error);
-        res.status(500).send("Internal Server Error: Failed to register user.");
+        res.status(500).send("Internal Server Error");
     }
 });
 
+// Post creation route
 app.post('/api/posts/create', async (req, res) => {
     try {
         const { content, authorId } = req.body;
@@ -54,7 +58,6 @@ app.post('/api/posts/create', async (req, res) => {
 
 // --- SERVER STARTUP ---
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
