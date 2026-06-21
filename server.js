@@ -1,18 +1,34 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const prisma = new PrismaClient();
 
+// --- CONFIGURATION ---
+// Since server.js is in the root, we look directly into 'views'
+app.set('view engine', 'ejs'); 
+app.set('views', path.join(__dirname, 'views'));
+
 // --- MIDDLEWARE ---
+// Serve static files directly from 'public'
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // --- ROUTES ---
 
+// Homepage
+app.get('/', (req, res) => {
+    res.render('index'); 
+});
+
 app.post('/register', async (req, res) => {
     try {
-        // Logic for registration
         res.redirect('/feed');
     } catch (error) {
         console.error("Registration Database Error:", error);
@@ -39,16 +55,6 @@ app.post('/api/posts/create', async (req, res) => {
 // --- SERVER STARTUP ---
 const PORT = process.env.PORT || 5000;
 
-// --- HOME ROUTE ---
-app.get('/', (req, res) => {
-    // You can send a simple message for now
-    res.send('Welcome to OmniSocial! The server is running.');
-    
-    // OR, if you have an index.html file in a 'public' folder:
-    // res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
-});
-
-// Listen on 0.0.0.0 for Railway compatibility
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
