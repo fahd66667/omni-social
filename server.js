@@ -39,6 +39,15 @@ app.post('/api/posts/create', async (req, res) => {
 // --- SERVER STARTUP ---
 const PORT = process.env.PORT || 5000;
 
+// --- HOME ROUTE ---
+app.get('/', (req, res) => {
+    // You can send a simple message for now
+    res.send('Welcome to OmniSocial! The server is running.');
+    
+    // OR, if you have an index.html file in a 'public' folder:
+    // res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
+});
+
 // Listen on 0.0.0.0 for Railway compatibility
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
