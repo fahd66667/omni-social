@@ -1,46 +1,40 @@
 const express = require('express');
-const cors = require('cors');
-const { PrismaClient } = require('@prisma/client'); 
-
 const app = express();
-const prisma = new PrismaClient(); 
+const { PrismaClient } = require('@prisma/client'); // Assuming you use Prisma
+const prisma = new PrismaClient();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-// CRITICAL FIX: This tells Express how to read the HTML form data
-app.use(express.urlencoded({ extended: true })); 
+// --- MIDDLEWARE (Crucial: These must come before your routes) ---
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public')); // If you have a public folder for CSS/images
 
-// --- Authentication Route ---
-app.post('/api/auth/login', (req, res) => {
-    console.log("Login attempt received");
-    res.status(200).json({ message: "Login successful", token: "fake-token-123" });
-});
+// Set EJS or your view engine (if you are using one, e.g., ejs)
+app.set('view engine', 'ejs'); 
+app.set('views', './views');
 
-// --- NEW FIX: Register Route ---
+// --- ROUTES ---
+
+// Registration Route
 app.post('/register', async (req, res) => {
     try {
-        const { username, email, password } = req.body;
-        console.log("New registration attempt for:", email);
-
-        const newUser = await prisma.user.create({
-            data: { username, email, password }
-        });
-        
-        // Redirect to the feed immediately after it succeeds
-        res.redirect('/feed'); 
+        // Your logic to save the user goes here
+        // Example: const newUser = await prisma.user.create({ data: req.body });
+        res.redirect('/feed');
     } catch (error) {
         console.error("Registration Database Error:", error);
-        res.status(500).send("Internal Server Error: Failed to register user. Check Railway logs.");
+        res.status(500).send("Internal Server Error: Failed to register user.");
     }
 });
 
-// --- New Post Route ---
+// Create Post Route
 app.post('/api/posts/create', async (req, res) => {
     try {
         const { content, authorId } = req.body;
         const newPost = await prisma.post.create({
-            data: { content, authorId: parseInt(authorId) }
+            data: { 
+                content, 
+                authorId: parseInt(authorId) 
+            }
         });
         res.status(201).json(newPost);
     } catch (error) {
@@ -49,7 +43,8 @@ app.post('/api/posts/create', async (req, res) => {
     }
 });
 
-// Start Server
-app.listen(5000, () => {
-    console.log('Server is running on port 5000');
+// --- SERVER STARTUP ---
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
